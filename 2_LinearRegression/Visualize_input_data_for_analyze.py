@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 dataset_folder      =   r'C:\Github_NTQH\AIO2023_Main_Lesson_Code\2_LinearRegression\dataset' 
-dataset_file_name   =   r'\t06_1.csv'
+dataset_file_name   =   r'\t32_1.csv'
 dataset_file_path   =   dataset_folder  + dataset_file_name
 lst_data            =   np.genfromtxt(dataset_file_path,delimiter=',',skip_header=1).tolist()
 
