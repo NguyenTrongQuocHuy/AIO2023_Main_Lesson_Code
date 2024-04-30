@@ -46,14 +46,36 @@ def compute_derivative(lst_w_b_, lst_feature_, label_, epsilon_=1e-5): #as deriv
         lst_derivative_.append(derivative_as_definition_)
     return lst_derivative_                                                                      #lst_derivative = [dLoss/dw1, dLoss/dw2, dLoss/dw3...dLoss/dwi, dLoss/db]
 
-def processing_all_database(epoch_, lr_, ini_lst_w_b_, lst_data_feature_, lst_data_label_): # Training by All batch data
+def training_all_database_obo(epoch_, lr_, ini_lst_w_b_, lst_data_feature_, lst_data_label_): # Training by All data sample, training one by one sample
+    lst_loss_val_       =   []
     for _ in range(epoch_):
         for i_ in range(len(lst_data_feature_)):
             lst_derivative_i_       =   compute_derivative(ini_lst_w_b_, lst_data_feature_[i_], lst_data_label_[i_])
             lst_w_b_new_            =   np.subtract(ini_lst_w_b_, np.multiply(lr_,lst_derivative_i_))
             ini_lst_w_b_            =   lst_w_b_new_
-            loss_val_               =   loss_function(lst_w_b_new_, lst_data_feature_[i_], lst_data_label_[i_])   
-    return ini_lst_w_b_, loss_val_
+            loss_val_               =   loss_function(lst_w_b_new_, lst_data_feature_[i_], lst_data_label_[i_])
+        lst_loss_val_.append(loss_val_)
+    return ini_lst_w_b_, loss_val_, lst_loss_val_
+
+def training_all_database_average(epoch_, lr_, ini_lst_w_b_, lst_data_feature_, lst_data_label_): ## Training by All data sample, training all sample and do average result per epoch
+    lst_loss_val_       =   []
+    for e_ in range(epoch_):
+        lst_derivative_e_           =   []
+        for i_ in range(len(lst_data_feature_)):
+            lst_derivative_i_       =   compute_derivative(ini_lst_w_b_, lst_data_feature_[i_], lst_data_label_[i_])
+            lst_derivative_e_.append(lst_derivative_i_)
+        lst_derivative_e_sum_       =   (np.array(lst_derivative_e_)).sum(axis=0).tolist()
+        lst_derivative_e_average_   =   np.divide(lst_derivative_e_sum_,len(lst_data_feature_))
+        lst_w_b_new_                =   np.subtract(ini_lst_w_b_, np.multiply(lr_,lst_derivative_e_average_))
+        ini_lst_w_b_                =   lst_w_b_new_
+        rand_indice_                =   random.randint(0,len(lst_data_feature_)-1)
+        loss_val_                   =   loss_function(lst_w_b_new_,lst_data_feature_[rand_indice_], lst_data_label_[rand_indice_])
+        lst_loss_val_.append(loss_val_)
+    rand_indice_     =   random.randint(0,len(lst_data_feature_)-1)
+    loss_val_       =   loss_function(lst_w_b_new_,lst_data_feature_[rand_indice_], lst_data_label_[rand_indice_])
+    return  ini_lst_w_b_, loss_val_, lst_loss_val_
+
+'''
 #-------------------------------------------------------------------------------------------------------
 #########################################################################################################################################################################   D
 #-------------------------------------------Initialize_pre-train_parameters-----------------------------                                                                #   O
@@ -75,10 +97,14 @@ lst_data_label          =   [lst_data[i][(len(ini_lst_w_b)-1)] for i in range(le
 #=======================================================================================================                                                                #
 #########################################################################################################################################################################
 
+#
 
 #--------------------------------------------MODEL_TRAINING---------------------------------------------
-model_lst_w_b,model_loss           =   processing_all_database(epoch, lr, ini_lst_w_b, lst_data_feature, lst_data_label)
+model_lst_w_b,model_loss           =   training_all_database_obo(epoch, lr, ini_lst_w_b, lst_data_feature, lst_data_label)
 print(f'after train, we get model parameter {model_lst_w_b}\nAnd the loss of model is {model_loss}')
+
+#model_lst_w_b,model_loss           =   training_all_database_average(epoch, lr, ini_lst_w_b, lst_data_feature, lst_data_label)
+#print(f'after train, we get model parameter {model_lst_w_b}\nAnd the loss of model is {model_loss}')
 #-------------------------------------------------------------------------------------------------------
 
 
@@ -87,3 +113,4 @@ lst_predict_value       =   compute_predict_value(model_lst_w_b,lst_data_feature
 plt.plot(lst_data_feature,lst_data_label,c='blue',marker='*')
 plt.plot(lst_data_feature,lst_predict_value,c='red',marker='o')
 plt.show()
+'''
